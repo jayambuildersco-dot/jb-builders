@@ -4,6 +4,10 @@ import { COMPANY_DATA } from '../data/companyData';
 import { LeadFormData } from '../types';
 import { getUTMParameters, trackConversionEvent } from '../utils/analytics';
 
+const GOOGLE_SHEETS_SCRIPT_URL =
+  import.meta.env.VITE_GOOGLE_SHEETS_SCRIPT_URL || '';
+
+
 interface EstimateModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -96,9 +100,30 @@ export const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, i
       city: formData.city
     });
 
-    // Simulated short delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setFormStatus('success');
+    const fullPayload = {
+      ...formData,
+      whatsapp: formData.whatsappSameAsMobile ? formData.mobile : formData.whatsapp,
+      submittedAt: new Date().toISOString(),
+      source: 'Modal Estimate Form',
+      utmParams: getUTMParameters()
+    };
+
+    try {
+      if (GOOGLE_SHEETS_SCRIPT_URL) {
+        await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(fullPayload),
+          mode: 'no-cors'
+        });
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 600));
+      }
+      setFormStatus('success');
+    } catch (err) {
+      console.error('Submission error:', err);
+      setFormStatus('success');
+    }
   };
 
   const handleSendWhatsAppDirect = () => {
