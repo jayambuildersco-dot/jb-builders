@@ -1,0 +1,6 @@
+{
+  "name": "Jayam Builders",
+  "description": "Premium construction, civil engineering, and architectural building design company in Tamil Nadu established in 1998.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
